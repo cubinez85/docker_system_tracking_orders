@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - postgres_/var/lib/postgresql/data
+      - postgres_:/var/lib/postgresql/data
     networks:
       - tracking_net
     healthcheck:
@@ -18,7 +18,7 @@ services:
     restart: unless-stopped
 
   web:
-    image: ${DOCKER_USER}/tracking-orders:latest  # ← Используем образ с Docker Hub
+    image: cubinez85/tracking-orders:latest
     container_name: tracking_orders_web
     environment:
       DEBUG: ${DEBUG}
@@ -61,7 +61,7 @@ services:
     restart: unless-stopped
 
 volumes:
-  postgres_
+  postgres_:
   static_volume:
   media_volume:
 
