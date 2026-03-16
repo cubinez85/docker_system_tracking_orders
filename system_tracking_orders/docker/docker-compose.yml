@@ -55,7 +55,8 @@ services:
       - media_volume:/app/media:ro
       - ../../logs/nginx:/var/log/nginx
     depends_on:
-      - web
+      web:
+        condition: service_started
     networks:
       - tracking_net
     restart: unless-stopped
