@@ -6,8 +6,10 @@ services:
       POSTGRES_DB: orders_db
       POSTGRES_USER: user_orders
       POSTGRES_PASSWORD: SecurePass123
+      PGPASSFILE: /var/lib/postgresql/.pgpass
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ~/.pgpass:/var/lib/postgresql/.pgpass:ro
     networks:
       - tracking_net
     healthcheck:
