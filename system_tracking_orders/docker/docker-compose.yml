@@ -3,15 +3,15 @@ services:
     image: postgres:15-alpine
     container_name: tracking_orders_db
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: orders_db
+      POSTGRES_USER: user_orders
+      POSTGRES_PASSWORD: SecurePass123
     volumes:
-      - postgres_:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - tracking_net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U user_orders"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -21,18 +21,18 @@ services:
     image: cubinez85/tracking-orders:latest
     container_name: tracking_orders_web
     environment:
-      DEBUG: ${DEBUG}
-      SECRET_KEY: ${SECRET_KEY}
-      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
-      DB_NAME: ${DB_NAME}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
+      DEBUG: "False"
+      SECRET_KEY: abc123xyz789def456ghi012jkl345mno678pqr901stu234vwx567
+      ALLOWED_HOSTS: tracking-orders.cubinez.ru,localhost,127.0.0.1,web
+      DB_NAME: orders_db
+      DB_USER: user_orders
+      DB_PASSWORD: SecurePass123
       DB_HOST: db
-      DB_PORT: 5432
-      CREATE_SUPERUSER: ${CREATE_SUPERUSER}
-      DJANGO_SUPERUSER_USERNAME: ${DJANGO_SUPERUSER_USERNAME}
-      DJANGO_SUPERUSER_EMAIL: ${DJANGO_SUPERUSER_EMAIL}
-      DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD}
+      DB_PORT: "5432"
+      CREATE_SUPERUSER: "true"
+      DJANGO_SUPERUSER_USERNAME: admin
+      DJANGO_SUPERUSER_EMAIL: admin@cubinez.ru
+      DJANGO_SUPERUSER_PASSWORD: AdminPass123
     volumes:
       - static_volume:/app/static
       - media_volume:/app/media
@@ -47,22 +47,23 @@ services:
     image: nginx:alpine
     container_name: tracking_orders_nginx
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/.htpasswd:/etc/nginx/.htpasswd:ro
       - static_volume:/app/static:ro
       - media_volume:/app/media:ro
       - ../../logs/nginx:/var/log/nginx
+    command: >
+       sh -c "rm -f /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
     depends_on:
-      web:
-        condition: service_started
+      - web
     networks:
       - tracking_net
     restart: unless-stopped
 
 volumes:
-  postgres_:
+  postgres_data:
   static_volume:
   media_volume:
 
