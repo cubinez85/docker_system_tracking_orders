@@ -74,3 +74,4 @@ docker/nginx/.htpasswd
 logs/
 *.log
 ../logs/
+
