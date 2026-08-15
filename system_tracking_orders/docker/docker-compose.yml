@@ -3,8 +3,8 @@ services:
     image: postgres:15-alpine
     container_name: tracking_orders_db
     environment:
-      POSTGRES_DB: orders_db
-      POSTGRES_USER: user_orders
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-change_me_in_production}
       PGPASSFILE: /var/lib/postgresql/.pgpass
     volumes:
@@ -13,28 +13,31 @@ services:
     networks:
       - tracking_net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user_orders"]
+      test: ["CMD-SHELL", "pg_isready -U user_orders -d orders_db"]
       interval: 10s
       timeout: 5s
       retries: 5
     restart: unless-stopped
 
   web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
     image: cubinez85/tracking-orders:latest
     container_name: tracking_orders_web
     environment:
-      DEBUG: "False"
-      SECRET_KEY: abc123xyz789def456ghi012jkl345mno678pqr901stu234vwx567
-      ALLOWED_HOSTS: tracking-orders.cubinez.ru,localhost,127.0.0.1,web
-      DB_NAME: orders_db
-      DB_USER: user_orders
-      DB_PASSWORD: SecurePass123
+      DEBUG: ${DEBUG}
+      SECRET_KEY: ${SECRET_KEY}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
       DB_HOST: db
-      DB_PORT: "5432"
-      CREATE_SUPERUSER: "true"
-      DJANGO_SUPERUSER_USERNAME: admin
-      DJANGO_SUPERUSER_EMAIL: admin@cubinez.ru
-      DJANGO_SUPERUSER_PASSWORD: AdminPass123
+      DB_PORT: ${DB_PORT}
+      CREATE_SUPERUSER: ${CREATE_SUPERUSER}
+      DJANGO_SUPERUSER_USERNAME: ${DJANGO_SUPERUSER_USERNAME}
+      DJANGO_SUPERUSER_EMAIL: ${DJANGO_SUPERUSER_EMAIL}
+      DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD}
     volumes:
       - static_volume:/app/static
       - media_volume:/app/media
